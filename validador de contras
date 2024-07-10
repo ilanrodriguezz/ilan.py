@@ -1,0 +1,42 @@
+num = 0
+spec = 0
+low = 0
+upp = 0
+check = True
+
+while check:
+    contras = input("Ingrese su contraseña: ")
+    if len(contras) >= 8:
+        for letter in contras:
+            if letter.isspace():
+                print("La contraseña no puede contener espacios.")
+                err = True
+            if letter.isnumeric():
+                num += 1
+            elif letter.islower():
+                low += 1
+            elif letter.isupper():
+                upp += 1
+            else:
+                spec += 1
+        if num < 2:
+            print("La contraseña debe tener al menos 2 números.")
+            err = True
+        if spec < 1:
+            print("La contraseña debe tener al menos 1 caracter especial.")
+            err = True
+        if upp < 1:
+            print("La contraseña debe tener al menos una mayúscula.")
+            err = True
+        if low < 1:
+            print("La contraseña debe tener al menos una minúscula.")
+            err = True
+    else:
+        print("La contraseña debe tener al menos 8 caracteres.")
+        continue
+    if err == True:
+        err = False
+        continue
+    else: break
+
+print("Su contraseña ha sido grabada.")
