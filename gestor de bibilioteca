@@ -1,0 +1,249 @@
+import json
+import datetime
+import random
+
+# Clase para el Libro
+class Libro:
+    def _init_(self, titulo, autor, genero, copias):
+        self.titulo = titulo
+        self.autor = autor
+        self.genero = genero
+        self.copias = copias
+
+# Clase para la Biblioteca
+class Biblioteca:
+    def _init_(self):
+        self.libros = []
+        self.historial_prestamos = []
+
+    def agregar_libro(self, libro):
+        self.libros.append(libro)
+        guardar_datos(self)  # Guardar datos cada vez que se agrega un libro
+
+    def buscar_libro_por_titulo(self, titulo):
+        resultados = [libro for libro in self.libros if libro.titulo.lower() == titulo.lower()]
+        if resultados:
+            return resultados
+        else:
+            print("Libro no disponible.")
+            return []
+
+    def buscar_libro_por_autor(self, autor):
+        resultados = [libro for libro in self.libros if libro.autor.lower() == autor.lower()]
+        if resultados:
+            return resultados
+        else:
+            print("No se encontraron libros para el autor solicitado.")
+            return []
+
+    def prestar_libro(self, titulo):
+        libro = self.buscar_libro_por_titulo(titulo)
+        if libro and libro[0].copias > 0:
+            libro[0].copias -= 1
+            self.historial_prestamos.append({
+                'titulo': titulo,
+                'fecha_prestamo': datetime.datetime.now().isoformat(),
+                'devuelto': False
+            })
+            guardar_datos(self)  # Guardar datos despuÃ©s de prestar un libro
+            print(f'Libro "{titulo}" prestado exitosamente.')
+            print("Libro entregado con Ã©xito.")
+            return True
+        else:
+            print(f'No se pudo prestar el libro "{titulo}". No hay copias disponibles o el libro no existe.')
+            return False
+
+    def devolver_libro(self, titulo):
+        for prestamo in self.historial_prestamos:
+            if prestamo['titulo'] == titulo and not prestamo['devuelto']:
+                prestamo['devuelto'] = True
+                prestamo['fecha_devolucion'] = datetime.datetime.now().isoformat()
+                libro = self.buscar_libro_por_titulo(titulo)
+                if libro:
+                    libro[0].copias += 1
+                guardar_datos(self)  # Guardar datos despuÃ©s de devolver un libro
+                print(f'Libro "{titulo}" devuelto exitosamente.')
+                return True
+        print(f'No se encontrÃ³ el prÃ©stamo activo para el libro "{titulo}".')
+        return False
+
+    def mostrar_historial(self):
+        print("\nHistorial de PrÃ©stamos:")
+        for prestamo in self.historial_prestamos:
+            estado = "Devuelto" if prestamo['devuelto'] else "No Devuelto"
+            fecha_devolucion = prestamo.get('fecha_devolucion', 'N/A')
+            print(f"TÃ­tulo: {prestamo['titulo']}, Fecha de PrÃ©stamo: {prestamo['fecha_prestamo']}, Fecha de DevoluciÃ³n: {fecha_devolucion}, Estado: {estado}")
+        print("")
+
+# FunciÃ³n para guardar los datos en un archivo JSON
+def guardar_datos(biblioteca):
+    datos = {
+        "libros": [
+            {
+                "titulo": libro.titulo,
+                "autor": libro.autor,
+                "genero": libro.genero,
+                "copias": libro.copias
+            }
+            for libro in biblioteca.libros
+        ],
+        "historial_prestamos": biblioteca.historial_prestamos
+    }
+    with open("biblioteca.json", "w") as archivo:
+        json.dump(datos, archivo, indent=4)
+    print("Datos guardados correctamente.")
+
+# FunciÃ³n para cargar los datos desde un archivo JSON
+def cargar_datos(biblioteca):
+    try:
+        with open("biblioteca.json", "r") as archivo:
+            datos = json.load(archivo)
+            biblioteca.libros = [
+                Libro(
+                    titulo=libro["titulo"],
+                    autor=libro["autor"],
+                    genero=libro["genero"],
+                    copias=libro["copias"]
+                )
+                for libro in datos["libros"]
+            ]
+            biblioteca.historial_prestamos = datos["historial_prestamos"]
+            print("Datos cargados correctamente.")
+    except FileNotFoundError:
+        print("No se encontrÃ³ un archivo de datos previo. Se crearÃ¡ uno nuevo al guardar.")
+
+# FunciÃ³n para generar libros de prueba
+def generar_libros(biblioteca, cantidad=500):
+    # Listas de tÃ­tulos y autores
+    titulos_stephen_king = [
+        "It", "The Shining", "Carrie", "Misery", "The Dark Tower", 
+        "Salem's Lot", "Pet Sematary", "The Stand", "Doctor Sleep", "11/22/63"
+    ]
+    
+    titulos_motivacionales = [
+        "The Power of Positive Thinking", "Atomic Habits", "Think and Grow Rich", 
+        "How to Win Friends and Influence People", "The 7 Habits of Highly Effective People",
+        "Mindset: The New Psychology of Success", "Grit: The Power of Passion and Perseverance", 
+        "Awaken the Giant Within", "The Power of Now", "The Four Agreements"
+    ]
+    
+    otros_titulos = [
+        "To Kill a Mockingbird", "1984", "Pride and Prejudice", 
+        "The Great Gatsby", "Moby Dick", "War and Peace", "Crime and Punishment",
+        "The Catcher in the Rye", "Brave New World", "Harry Potter and the Sorcerer's Stone"
+    ]
+    
+    autores_motivacionales = [
+        "Norman Vincent Peale", "James Clear", "Napoleon Hill", 
+        "Dale Carnegie", "Stephen R. Covey", "Carol S. Dweck", 
+        "Angela Duckworth", "Tony Robbins", "Eckhart Tolle", "Don Miguel Ruiz"
+    ]
+    
+    autores_clasicos = [
+        "Harper Lee", "George Orwell", "Jane Austen", "F. Scott Fitzgerald", 
+        "Herman Melville", "Leo Tolstoy", "Fyodor Dostoevsky", 
+        "J.D. Salinger", "Aldous Huxley", "J.K. Rowling"
+    ]
+    
+    generos = ["FicciÃ³n", "Terror", "Ciencia FicciÃ³n", "FantasÃ­a", "Misterio", "Motivacional", "ClÃ¡sico"]
+
+    # Generar libros de Stephen King
+    for titulo in titulos_stephen_king:
+        genero = "Terror"
+        copias = random.randint(1, 10)
+        libro = Libro(titulo, "Stephen King", genero, copias)
+        biblioteca.agregar_libro(libro)
+    
+    # Generar libros motivacionales
+    for i in range(len(titulos_motivacionales)):
+        titulo = titulos_motivacionales[i]
+        autor = autores_motivacionales[i]
+        genero = "Motivacional"
+        copias = random.randint(1, 10)
+        libro = Libro(titulo, autor, genero, copias)
+        biblioteca.agregar_libro(libro)
+
+    # Generar otros libros clÃ¡sicos
+    for i in range(len(otros_titulos)):
+        titulo = otros_titulos[i]
+        autor = autores_clasicos[i]
+        genero = "ClÃ¡sico"
+        copias = random.randint(1, 10)
+        libro = Libro(titulo, autor, genero, copias)
+        biblioteca.agregar_libro(libro)
+    
+    # Generar libros adicionales para alcanzar la cantidad deseada
+    titulos_adicionales = [f"Libro Adicional {i}" for i in range(1, cantidad - len(biblioteca.libros) + 1)]
+    for titulo in titulos_adicionales:
+        autor = f"Autor Desconocido {random.randint(1, 100)}"
+        genero = random.choice(generos)
+        copias = random.randint(1, 10)
+        libro = Libro(titulo, autor, genero, copias)
+        biblioteca.agregar_libro(libro)
+
+# FunciÃ³n para mostrar el menÃº
+def mostrar_menu():
+    print("\nSistema de GestiÃ³n de Biblioteca")
+    print("1. Registrar un nuevo libro")
+    print("2. Buscar un libro")
+    print("3. Prestar un libro")
+    print("4. Devolver un libro")
+    print("5. Mostrar historial de prÃ©stamos")
+    print("6. Salir")
+
+# FunciÃ³n principal
+def main():
+    biblioteca = Biblioteca()
+    cargar_datos(biblioteca)  # Cargar datos al iniciar el programa
+    if not biblioteca.libros:  # Si no hay libros cargados, generar nuevos
+        generar_libros(biblioteca, 500)
+        guardar_datos(biblioteca)
+        print("Se han importado 500 libros al sistema.")
+    else:
+        print("Biblioteca cargada desde archivo.")
+    
+    while True:
+        mostrar_menu()
+        opcion = input("Elige una opciÃ³n: ")
+        if opcion == '1':
+            titulo = input("TÃ­tulo del libro: ")
+            autor = input("Autor del libro: ")
+            genero = input("GÃ©nero del libro: ")
+            copias = int(input("NÃºmero de copias disponibles: "))
+            libro = Libro(titulo, autor, genero, copias)
+            biblioteca.agregar_libro(libro)
+        elif opcion == '2':
+            print("\nBuscar por:")
+            print("1. TÃ­tulo")
+            print("2. Autor")
+            sub_opcion = input("Elige una opciÃ³n: ")
+            if sub_opcion == '1':
+                titulo = input("Ingresa el tÃ­tulo del libro a buscar: ")
+                resultados = biblioteca.buscar_libro_por_titulo(titulo)
+                if resultados:
+                    print("\nResultados de la bÃºsqueda:")
+                    for libro in resultados:
+                        print(f"TÃ­tulo: {libro.titulo}, Autor: {libro.autor}, GÃ©nero: {libro.genero}, Copias disponibles: {libro.copias}")
+            elif sub_opcion == '2':
+                autor = input("Ingresa el nombre del autor a buscar: ")
+                resultados = biblioteca.buscar_libro_por_autor(autor)
+                if resultados:
+                    print("\nResultados de la bÃºsqueda:")
+                    for libro in resultados:
+                        print(f"TÃ­tulo: {libro.titulo}, Autor: {libro.autor}, GÃ©nero: {libro.genero}, Copias disponibles: {libro.copias}")
+        elif opcion == '3':
+            titulo = input("Ingresa el tÃ­tulo del libro que deseas prestar: ")
+            biblioteca.prestar_libro(titulo)
+        elif opcion == '4':
+            titulo = input("Ingresa el tÃ­tulo del libro que deseas devolver: ")
+            biblioteca.devolver_libro(titulo)
+        elif opcion == '5':
+            biblioteca.mostrar_historial()
+        elif opcion == '6':
+            print("Saliendo del sistema. Â¡Hasta luego!")
+            break
+        else:
+            print("OpciÃ³n no vÃ¡lida, por favor intenta nuevamente.")
+
+if _name_ == "_main_":
+    main()
