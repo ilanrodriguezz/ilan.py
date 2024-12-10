@@ -1,0 +1,22 @@
+# Presentación personal en Python
+
+# Asignación de variables
+nombre = "Ilan Rodríguez"
+edad = 21
+profesion = "programador en Python"
+universidad = "Universidad Tecnológica Nacional de Córdoba"
+experiencia = "ventas y atención al cliente"
+conocimientos = "sistemas de redes informáticas"
+carrera_estudiada = "sistemas de redes de conexión"
+carrera_actual = "analista de sistemas informáticos"
+instituto_actual = "Instituto Manuel Belgrano"
+objetivo = "seguir adquiriendo experiencia en el área, aplicar mis conocimientos, y dar lo mejor de mí en los servicios que brinde"
+
+# Mostrar la presentación
+print("Hola, mi nombre es", nombre)
+print(f"Tengo {edad} años de edad y soy {profesion}.")
+print(f"Soy recibido en {universidad}.")
+print(f"Tengo experiencia en {experiencia}.")
+print(f"También tengo conocimiento en {conocimientos}, ya que estudié {carrera_estudiada} en {universidad}.")
+print(f"Actualmente, estoy estudiando {carrera_actual} en {instituto_actual}.")
+print(f"Mi objetivo es {objetivo}.")
